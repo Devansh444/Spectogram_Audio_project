@@ -5,6 +5,7 @@
 - Kaam:
   - User ka spoken question record hota hai.
 
+
 2. Spectrogram / Speech Features
 - Files: `inference.py`, `train_stage1.py`
 - Code:
@@ -12,6 +13,7 @@
   - `load_log_mel(...)`
 - Kaam:
   - Audio ko log-mel spectrogram features me badla jata hai.
+
 
 3. Speech Encoder
 - File: `speech_encoder.py`
@@ -21,6 +23,7 @@
 - Kaam:
   - Speech features ko encoded hidden representations me badalta hai.
 
+
 4. Connector / Projection
 - File: `model.py`
 - Code:
@@ -29,6 +32,7 @@
 - Kaam:
   - Encoder output ko GPT-2 / LLM embedding space me map karta hai.
 
+
 5. LLM
 - File: `model.py`
 - Code:
@@ -36,6 +40,7 @@
   - `_run_transformer(...)`
 - Kaam:
   - Speech-conditioned tokens ke basis par text/acoustic reasoning karta hai.
+
 
 6. Text Continuation / Question Understanding
 - Files: `model.py`, `train_stage1.py`, `inference.py`
@@ -46,6 +51,7 @@
 - Kaam:
   - Spoken prompt se text-side understanding aur answer text nikalna.
 
+
 7. Acoustic Continuation
 - Files: `model.py`, `train_stage1.py`, `inference.py`
 - Code:
@@ -54,12 +60,14 @@
 - Kaam:
   - LLM hidden states se answer ki acoustic side nikalna.
 
+
 8. PreNet
 - File: `model.py`
 - Code:
   - `PreNet`
 - Kaam:
   - Training me ground-truth continuation spectrogram ko LLM-side tokens me badalna.
+
 
 9. PostNet
 - File: `model.py`
@@ -68,6 +76,7 @@
 - Kaam:
   - Hidden states ko spectrogram space me map karna.
 
+
 10. Spectrogram Output
 - File: `model.py`
 - Code:
@@ -75,12 +84,14 @@
 - Kaam:
   - Final spectrogram-like acoustic output generate hota hai.
 
+
 11. Vocoder
 - File: `vocoder.py`
 - Code:
   - `griffin_lim_vocoder(...)`
 - Kaam:
   - Spectrogram ko waveform/audio me convert karta hai.
+
 
 12. Speech Output
 - Files: `inference.py`, `vocoder.py`
@@ -94,6 +105,7 @@
 Training Sequence
 - Stage 1: `train_stage1.py`
 - Stage 2: `train_stage2.py`
+
 
 Current Important Notes
 - Step 6 question understanding weak hai.
