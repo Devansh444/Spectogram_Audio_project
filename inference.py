@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import json
 import tempfile
 import time
@@ -83,6 +82,7 @@ def is_low_quality_text(text: str) -> bool:
 
 
 def synthesize_response_audio(text: str, output_path: str | Path) -> bool:
+    import asyncio
     import edge_tts
 
     # Step 12: Final answer text ko spoken audio response me badalna.

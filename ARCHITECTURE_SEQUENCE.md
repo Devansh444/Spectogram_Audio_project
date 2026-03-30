@@ -106,8 +106,41 @@ Training Sequence
 - Stage 1: `train_stage1.py`
 - Stage 2: `train_stage2.py`
 
+Stage 1 Training Flow
+- File: `train_stage1.py`
+- Use:
+  - LibriSpeech par base continuation training
+- Kya hota hai:
+  - speech prompt banti hai
+  - continuation transcript target banta hai
+  - continuation acoustic target banta hai
+  - model ko text + acoustic continuation jointly train kiya jata hai
+
+Stage 2 Training Flow
+- File: `train_stage2.py`
+- Use:
+  - spoken WebQuestions par QA-specific training
+- Kya hota hai:
+  - spoken question audio input hoti hai
+  - question text target banti hai
+  - answer text target banti hai
+  - speech embedding aur question text embedding alignment bhi train hoti hai
+- Purpose:
+  - model ko spoken question samajhna aur answer text nikalna sikhana
+
+Inference Flow
+- File: `inference.py`
+- Use:
+  - trained stage-2 checkpoint load hota hai
+- Kya hota hai:
+  - mic se question record hota hai
+  - speech features banti hain
+  - model answer text nikalne ki koshish karta hai
+  - fallback retrieval use ho sakta hai
+  - final answer audio save/play hoti hai
+
 
 Current Important Notes
 - Step 6 question understanding weak hai.
-- Step 7 acoustic branch weak hai.
+
 - Retrieval fallback `inference.py` me use ho raha hai taaki known spoken questions par better answer mil sake.

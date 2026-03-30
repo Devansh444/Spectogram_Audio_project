@@ -117,7 +117,7 @@ def collate_fn(batch):
         "continuation_lengths": continuation_lengths,
     }
 
-
+##7
 def reconstruction_loss(predicted: torch.Tensor, target: torch.Tensor, lengths: torch.Tensor) -> torch.Tensor:
     losses = []
     for row, length in enumerate(lengths.tolist()):

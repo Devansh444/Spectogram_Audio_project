@@ -18,6 +18,7 @@ from model import SpokenQAModel
 
 def audio_to_log_mel(audio_path: str | Path) -> torch.Tensor:
     cfg = get_default_config()
+    # Step 2: Spoken question audio ko log-mel speech features me badalna.
     audio, sample_rate = sf.read(str(audio_path))
     if audio.ndim > 1:
         audio = audio.mean(axis=1)
@@ -60,6 +61,7 @@ class SpokenWebQuestionsStage2Dataset(Dataset):
     def __getitem__(self, index: int) -> dict[str, torch.Tensor | str]:
         item = self.items[index]
         return {
+            # Step 1/2: Spoken question input aur uski speech features.
             "prompt_mel": audio_to_log_mel(item["question_audio_path"]),
             "question": item["question_text"],
             "answer": item["answer_text"],
@@ -85,6 +87,7 @@ def build_answer_targets(
     answers: list[str],
     device: str,
 ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    # Step 6: QA answer text ko training target banana.
     answer_prefixes = [f"Question: {question}\nAnswer:" for question in questions]
     formatted_sequences = [
         f"Question: {question}\nAnswer: {answer}".strip()
@@ -113,6 +116,7 @@ def build_question_targets(
     questions: list[str],
     device: str,
 ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    # Step 6: Spoken question se expected question text target banana.
     prefix = "Question:"
     sequences = [f"{prefix} {question}".strip() for question in questions]
     tokenized = model.tokenizer(
@@ -138,6 +142,7 @@ def build_alignment_targets(
     questions: list[str],
     device: str,
 ) -> tuple[torch.Tensor, torch.Tensor]:
+    # Step 6: Speech-question embedding ko text-question embedding ke saath align karne ke liye.
     tokenized = model.tokenizer(
         questions,
         return_tensors="pt",
@@ -153,6 +158,8 @@ def contrastive_alignment_loss(
     pooled_text: torch.Tensor,
     temperature: float = 0.07,
 ) -> torch.Tensor:
+    # Stage 2 helper: Sahi speech-question aur sahi text-question ko paas laana,
+    # aur galat pairs ko door rakhna.
     normalized_prompt = F.normalize(pooled_prompt, dim=-1)
     normalized_text = F.normalize(pooled_text, dim=-1)
     logits = torch.matmul(normalized_prompt, normalized_text.transpose(0, 1)) / temperature
@@ -203,18 +210,22 @@ def main() -> None:
     for epoch in range(num_epochs):
         model.train()
         for step, batch in enumerate(loader, start=1):
+            # Step 1/2: Spoken question batch input.
             prompt_mel = batch["prompt_mel"].to(device)
             prompt_lengths = batch["prompt_lengths"].to(device)
+            # Step 6: Question text understanding target.
             question_ids, question_mask, question_labels = build_question_targets(
                 model,
                 batch["questions"],
                 device,
             )
+            # Step 6: Speech-question aur text-question alignment target.
             alignment_ids, alignment_mask = build_alignment_targets(
                 model,
                 batch["questions"],
                 device,
             )
+            # Step 6: Final answer text generation target.
             answer_ids, answer_mask, labels = build_answer_targets(
                 model,
                 batch["questions"],
@@ -228,6 +239,7 @@ def main() -> None:
                 text_input_ids=question_ids,
                 text_attention_mask=question_mask,
             )
+            # Step 6: Question understanding / question-text loss.
             question_logits = question_outputs["text_logits"]
             question_shift_logits = question_logits[:, :-1, :].contiguous()
             question_shift_labels = question_labels[:, 1:].contiguous()
@@ -246,6 +258,7 @@ def main() -> None:
                 text_input_ids=answer_ids,
                 text_attention_mask=answer_mask,
             )
+            # Step 6: Answer text generation loss.
             answer_logits = answer_outputs["text_logits"]
             answer_shift_logits = answer_logits[:, :-1, :].contiguous()
             answer_shift_labels = labels[:, 1:].contiguous()
@@ -254,6 +267,7 @@ def main() -> None:
                 answer_shift_labels.reshape(-1),
                 ignore_index=-100,
             )
+            # Stage 2 total loss: question understanding + answer generation + alignment.
             loss = question_loss + answer_loss + (0.5 * alignment_loss)
 
             optimizer.zero_grad(set_to_none=True)

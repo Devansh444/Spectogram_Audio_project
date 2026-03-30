@@ -227,7 +227,7 @@ class SpokenQAModel(nn.Module):
         )
         generated = generated.replace("Answer:", "").strip()
         return generated
-
+   #7
     def forward(
         self,
         prompt_mel: torch.Tensor,

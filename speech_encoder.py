@@ -41,7 +41,7 @@ class SpeechEncoder(nn.Module):
         )
         self.encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
 
-    def _sinusoidal_positions(self, length: int, device: torch.device, dtype: torch.dtype) -> torch.Tensor:
+    def _sinusoidal_positions(self, length: int, device: torch.device, dtype: torch.dtype) -> torch.Tensor: #Sequence wise context smjna
         position = torch.arange(length, device=device, dtype=dtype).unsqueeze(1)
         div_term = torch.exp(
             torch.arange(0, self.hidden_size, 2, device=device, dtype=dtype)
@@ -52,12 +52,12 @@ class SpeechEncoder(nn.Module):
         embeddings[:, 1::2] = torch.cos(position * div_term)
         return embeddings.unsqueeze(0)
 
-    def _downsample_lengths(self, lengths: torch.Tensor) -> torch.Tensor:
+    def _downsample_lengths(self, lengths: torch.Tensor) -> torch.Tensor: #subamspling ke baad langth change
         lengths = torch.div(lengths + 1, 2, rounding_mode="floor")
         lengths = torch.div(lengths + 1, 2, rounding_mode="floor")
         return lengths.clamp_min(1)
 
-    def forward(self, x: torch.Tensor, lengths: torch.Tensor | None = None) -> tuple[torch.Tensor, torch.Tensor | None]:
+    def forward(self, x: torch.Tensor, lengths: torch.Tensor | None = None) -> tuple[torch.Tensor, torch.Tensor | None]:#Actual data pass
         # Step 3: Input speech features ko encoded speech representation me badalna.
         x = x.transpose(1, 2)
         x = self.conv_subsampler(x)
